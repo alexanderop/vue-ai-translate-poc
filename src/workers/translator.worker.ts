@@ -20,19 +20,25 @@ self.addEventListener('message', async (event: MessageEvent<WorkerCommand>) => {
   const { action, input, model } = event.data
 
   try {
-    if (action === 'download' && model) {
-      translator = await pipeline('translation', model, {
-        progress_callback: progressCallback
-      })
-      self.postMessage({ status: 'ready' } as WorkerMessage)
-    }
-    
-    if (action === 'translate' && input && translator) {
-      const output = await translator(input) as TranslationOutput[]
-      self.postMessage({ 
-        status: 'translation',
-        result: output[0].translation_text
-      } as WorkerMessage)
+    switch (action) {
+      case 'download':
+        if (model) {
+          translator = await pipeline('translation', model, {
+            progress_callback: progressCallback
+          })
+          self.postMessage({ status: 'ready' } as WorkerMessage)
+        }
+        break
+        
+      case 'translate':
+        if (input && translator) {
+          const output = await translator(input) as TranslationOutput[]
+          self.postMessage({ 
+            status: 'translation',
+            result: output[0].translation_text
+          } as WorkerMessage)
+        }
+        break
     }
   } catch (error) {
     console.error('Translation error:', error)

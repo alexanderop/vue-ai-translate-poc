@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import type { TranslationState } from '../types/translator'
 
-// State management with type safety
+// ----- State Management ----- //
 const state = ref<TranslationState>({
   germanText: '',
   englishText: '',
@@ -11,46 +11,59 @@ const state = ref<TranslationState>({
   progressPercentage: 0
 })
 
-// Type-safe computed property
+// ----- Computed Properties ----- //
 const buttonText = computed((): string => {
   if (!state.value.modelReady) return 'Loading model...'
   if (state.value.isLoading) return 'Translating...'
   return 'Translate'
 })
 
-// Initialize Web Worker
-const worker = new Worker(
-  new URL('../workers/translator.worker.ts', import.meta.url),
-  { type: 'module' }
-)
+// ----- Initialize Web Worker ----- //
+const worker = new Worker(new URL('../workers/translator.worker.ts', import.meta.url), {
+  type: 'module'
+})
 
-// Handle worker messages with type checking
-worker.addEventListener('message', (event) => {
+// ----- Worker Message Handlers ----- //
+function handleWorkerMessage(event: MessageEvent) {
   const { status, result } = event.data
 
   switch (status) {
     case 'progress':
-      if (typeof result === 'object' && 'progress' in result) {
-        state.value.progressPercentage = result.progress
-      }
+      updateProgress(result)
       break
     case 'ready':
       state.value.modelReady = true
       break
     case 'translation':
-      if (typeof result === 'string') {
-        state.value.englishText = result
-        state.value.isLoading = false
-      }
+      updateTranslation(result)
+      break
+    default:
+      console.warn('Unhandled worker message', event.data)
       break
   }
-})
+}
 
-// Translation handler
-const translate = (): void => {
+function updateProgress(result: any): void {
+  if (typeof result === 'object' && 'progress' in result) {
+    state.value.progressPercentage = result.progress
+  }
+}
+
+function updateTranslation(result: any): void {
+  if (typeof result === 'string') {
+    state.value.englishText = result
+    state.value.isLoading = false
+  }
+}
+
+// ----- Register Worker Event Listener ----- //
+worker.addEventListener('message', handleWorkerMessage)
+
+// ----- Translation Functionality ----- //
+function translate(): void {
   const trimmedText = state.value.germanText.trim()
   if (!trimmedText) return
-  
+
   state.value.isLoading = true
   worker.postMessage({
     action: 'translate',
@@ -58,7 +71,7 @@ const translate = (): void => {
   })
 }
 
-// Initialize model on mount
+// ----- Initialize Model on Component Mount ----- //
 onMounted(() => {
   worker.postMessage({
     action: 'download',
@@ -70,16 +83,17 @@ onMounted(() => {
 <template>
   <div class="translator">
     <div class="translator__panel">
+      <!-- German Text Panel -->
       <div class="translator__column">
         <div class="translator__language-bar">German</div>
         <textarea
           v-model="state.germanText"
           placeholder="Enter text"
           class="translator__area"
-          @input="(e) => { const target = e.target as HTMLTextAreaElement; target.style.height = 'auto'; target.style.height = target.scrollHeight + 'px' }"
         ></textarea>
       </div>
-      
+
+      <!-- English Translation Panel -->
       <div class="translator__column">
         <div class="translator__language-bar">English</div>
         <textarea
@@ -87,23 +101,22 @@ onMounted(() => {
           placeholder="Translation"
           readonly
           class="translator__area translator__area--readonly"
-          @input="(e) => { const target = e.target as HTMLTextAreaElement; target.style.height = 'auto'; target.style.height = target.scrollHeight + 'px' }"
         ></textarea>
       </div>
     </div>
-    
-    <button 
+
+    <!-- Translate Button -->
+    <button
       @click="translate"
       :disabled="!state.modelReady || state.isLoading"
       class="translator__button"
-      :class="{
-        'translator__button--disabled': !state.modelReady || state.isLoading
-      }"
+      :class="{ 'translator__button--disabled': !state.modelReady || state.isLoading }"
     >
       {{ buttonText }}
     </button>
-    
-    <div 
+
+    <!-- Progress Bar -->
+    <div
       v-if="state.progressPercentage > 0 && state.progressPercentage < 100"
       class="translator__progress"
       :style="{ '--progress': `${state.progressPercentage}%` }"
