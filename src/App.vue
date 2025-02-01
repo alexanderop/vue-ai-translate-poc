@@ -189,7 +189,9 @@ textarea {
   flex: 1;
   padding: 0.5rem;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid rgb(var(--color-border));
+  background-color: rgb(var(--color-card));
+  color: rgb(var(--color-text-base));
   font-size: 1rem;
   min-height: 100px;
   resize: vertical;
@@ -199,15 +201,15 @@ button {
   padding: 0.5rem 2rem;
   font-size: 1.1rem;
   cursor: pointer;
-  background-color: #4caf50;
-  color: white;
+  background-color: rgb(var(--color-accent));
+  color: rgb(var(--color-text-base));
   border: none;
   border-radius: 4px;
   transition: background-color 0.3s;
 }
 
 button:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: rgb(var(--color-card-muted));
 }
 
 button:disabled {
@@ -220,12 +222,12 @@ button:disabled {
 }
 
 h1 {
-  color: #2c3e50;
+  color: rgb(var(--color-text-base));
   margin-bottom: 0.5rem;
 }
 
 h2 {
-  color: #666;
+  color: rgb(var(--color-card-muted));
   font-size: 1.2rem;
   font-weight: normal;
   margin-top: 0;

@@ -37,10 +37,29 @@ const onChange = (event: Event) => {
   gap: 0.5rem;
 }
 
+label {
+  color: rgb(var(--color-text-base));
+}
+
 select {
   padding: 0.5rem;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid rgb(var(--color-border));
+  background-color: rgb(var(--color-card));
+  color: rgb(var(--color-text-base));
   min-width: 200px;
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+
+select:hover {
+  border-color: rgb(var(--color-accent));
+  background-color: rgb(var(--color-card-muted));
+}
+
+select:focus {
+  outline: none;
+  border-color: rgb(var(--color-accent));
+  box-shadow: 0 0 0 2px rgba(var(--color-accent), 0.2);
 }
 </style> 

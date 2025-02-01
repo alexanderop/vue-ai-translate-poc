@@ -1,10 +1,17 @@
 :root {
+  --color-fill: 33, 39, 55;
+  --color-text-base: 234, 237, 243;
+  --color-accent: 255, 107, 237;
+  --color-card: 52, 63, 96;
+  --color-card-muted: 138, 51, 123;
+  --color-border: 171, 75, 153;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: rgb(var(--color-text-base));
+  background-color: rgb(var(--color-fill));
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,11 +21,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: rgb(var(--color-accent));
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: rgb(var(--color-card-muted));
 }
 
 body {
@@ -36,17 +43,19 @@ h1 {
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid rgb(var(--color-border));
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: rgb(var(--color-card));
+  color: rgb(var(--color-text-base));
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, background-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: rgb(var(--color-accent));
+  background-color: rgb(var(--color-card-muted));
 }
 button:focus,
 button:focus-visible {
