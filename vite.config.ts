@@ -6,5 +6,8 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     port: 3456
+  },
+  worker: {
+    format: 'es'
   }
 })
