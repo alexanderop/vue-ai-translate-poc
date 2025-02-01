@@ -1,5 +1,4 @@
-import { pipeline, env } from '@xenova/transformers'
-import type { TranslationPipeline } from '@xenova/transformers'
+import { pipeline, env, TranslationPipeline} from '@huggingface/transformers';
 import type { WorkerMessage, WorkerCommand, TranslationOutput } from '../types/translator'
 
 // Configure Transformers.js
@@ -7,12 +6,13 @@ env.allowLocalModels = false
 
 let translator: TranslationPipeline | null = null
 
-// Type-safe progress callback
-const progressCallback = (data: { progress: number }): void => {
-  self.postMessage({
-    status: 'progress',
-    result: data
-  } as WorkerMessage)
+const progressCallback = (progressInfo: { status: string } & ({ progress?: number } | { progress: number })): void => {
+  if ('progress' in progressInfo) {
+    self.postMessage({
+      status: 'progress',
+      result: { progress: progressInfo.progress || 0 }
+    } as WorkerMessage)
+  }
 }
 
 // Handle messages with type checking
@@ -24,7 +24,8 @@ self.addEventListener('message', async (event: MessageEvent<WorkerCommand>) => {
       case 'download':
         if (model) {
           translator = await pipeline('translation', model, {
-            progress_callback: progressCallback
+            progress_callback: progressCallback,
+            device: 'webgpu',
           })
           self.postMessage({ status: 'ready' } as WorkerMessage)
         }
